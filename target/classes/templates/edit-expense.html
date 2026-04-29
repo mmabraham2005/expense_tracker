@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Edit Expense</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<div class="app">
+
+    <div class="sidebar">
+        <h2>Menu</h2>
+        <ul>
+            <li><a href="/" class="menu-link">Add Expense</a></li>
+            <li><a href="/expenses/view" class="menu-link">View Expenses</a></li>
+            <li class="active"><a href="/expenses/edit" class="menu-link">Edit Expense</a></li>
+            <li><a href="/expenses/delete" class="menu-link">Delete Expense</a></li>
+            <li><a href="/expenses/search" class="menu-link">Search Expense</a></li>
+            <li><a href="/reports" class="menu-link">Reports</a></li>
+            <li><a href="/budgets" class="menu-link">Budgets</a></li>
+        </ul>
+    </div>
+
+    <div class="content">
+        <h1>Expense Tracker Dashboard</h1>
+        <p class="subtitle">Choose an expense to edit</p>
+
+        <div class="card">
+            <h2>Select Expense</h2>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>User</th>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Amount</th>
+                        <th>Date</th>
+                        <th>Payment</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="e : ${expenses}">
+                        <td th:text="${e.expenseId}"></td>
+                        <td th:text="${e.userName}"></td>
+                        <td th:text="${e.expenseName}"></td>
+                        <td th:text="${e.categoryName}"></td>
+                        <td th:text="${e.amount}"></td>
+                        <td th:text="${e.date}"></td>
+                        <td th:text="${e.paymentMethod}"></td>
+                        <td>
+                            <a class="btn-edit" th:href="@{/expenses/edit(id=${e.expenseId})}">Load</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card" th:if="${expense != null}" style="margin-top: 24px;">
+            <h2>Edit Expense</h2>
+
+            <form th:action="@{/expenses/update}" method="post">
+                <input type="hidden" name="expenseId" th:value="${expense.expenseId}">
+
+                <div class="form-grid">
+
+                    <div>
+                        <label>User</label>
+                        <select name="userId" required>
+                            <option th:each="u : ${users}"
+                                    th:value="${u.userId}"
+                                    th:text="${u.name + ' (' + u.email + ')'}"
+                                    th:selected="${u.userId == expense.userId}">
+                            </option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label>Date</label>
+                        <input type="date" name="date" th:value="${expense.date}" required>
+                    </div>
+
+                    <div>
+                        <label>Expense Name</label>
+                        <input type="text" name="expenseName" th:value="${expense.expenseName}" required>
+                    </div>
+
+                    <div>
+                        <label>Category</label>
+                        <select name="categoryId" required>
+                            <option th:each="c : ${categories}"
+                                    th:value="${c.categoryId}"
+                                    th:text="${c.categoryName}"
+                                    th:selected="${c.categoryId == expense.categoryId}">
+                            </option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label>Amount</label>
+                        <input type="number" step="0.01" min="0" name="amount" th:value="${expense.amount}" required>
+                    </div>
+
+                    <div>
+                        <label>Payment Method</label>
+                        <select name="paymentMethod" required>
+                            <option value="Cash" th:selected="${expense.paymentMethod == 'Cash'}">Cash</option>
+                            <option value="Credit Card" th:selected="${expense.paymentMethod == 'Credit Card'}">Credit Card</option>
+                            <option value="Debit Card" th:selected="${expense.paymentMethod == 'Debit Card'}">Debit Card</option>
+                            <option value="Venmo" th:selected="${expense.paymentMethod == 'Venmo'}">Venmo</option>
+                            <option value="Zelle" th:selected="${expense.paymentMethod == 'Zelle'}">Zelle</option>
+                            <option value="Apple Pay" th:selected="${expense.paymentMethod == 'Apple Pay'}">Apple Pay</option>
+                            <option value="Other" th:selected="${expense.paymentMethod == 'Other'}">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="full-width">
+                        <label>Notes</label>
+                        <textarea name="notes" th:text="${expense.notes}"></textarea>
+                    </div>
+
+                </div>
+
+                <button class="btn" type="submit">Update Expense</button>
+            </form>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

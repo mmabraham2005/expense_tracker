@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Budgets</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<div class="app">
+
+    <div class="sidebar">
+        <h2>Menu</h2>
+        <ul>
+            <li><a href="/" class="menu-link">Add Expense</a></li>
+            <li><a href="/expenses/view" class="menu-link">View Expenses</a></li>
+            <li><a href="/expenses/edit" class="menu-link">Edit Expense</a></li>
+            <li><a href="/expenses/delete" class="menu-link">Delete Expense</a></li>
+            <li><a href="/expenses/search" class="menu-link">Search Expense</a></li>
+            <li><a href="/reports" class="menu-link">Reports</a></li>
+            <li class="active"><a href="/budgets" class="menu-link">Budgets</a></li>
+        </ul>
+    </div>
+
+    <div class="content">
+        <h1>Budget Management</h1>
+        <p class="subtitle">Create and track spending limits by user and category</p>
+
+        <div class="card">
+            <h2>Create Budget</h2>
+
+            <form th:action="@{/budgets/add}" method="post">
+                <div class="form-grid">
+
+                    <div>
+                        <label>User</label>
+                        <select name="userId" required>
+                            <option value="">Select user</option>
+                            <option th:each="u : ${users}"
+                                    th:value="${u.userId}"
+                                    th:text="${u.name}">
+                            </option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label>Category</label>
+                        <select name="categoryId" required>
+                            <option value="">Select category</option>
+                            <option th:each="c : ${categories}"
+                                    th:value="${c.categoryId}"
+                                    th:text="${c.categoryName}">
+                            </option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label>Limit Amount</label>
+                        <input type="number" step="0.01" min="0" name="limitAmount" required>
+                    </div>
+
+                    <div>
+                        <label>Start Date</label>
+                        <input type="date" name="startDate" required>
+                    </div>
+
+                    <div>
+                        <label>End Date</label>
+                        <input type="date" name="endDate" required>
+                    </div>
+
+                </div>
+
+                <button class="btn" type="submit">Add Budget</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h2>All Budgets</h2>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Budget ID</th>
+                        <th>User</th>
+                        <th>Category</th>
+                        <th>Limit</th>
+                        <th>Spent</th>
+                        <th>Remaining</th>
+                        <th>Status</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr th:each="b : ${budgets}">
+                        <td th:text="${b.budgetId}"></td>
+                        <td th:text="${b.userName}"></td>
+                        <td th:text="${b.categoryName}"></td>
+                        <td th:text="${b.limitAmount}"></td>
+                        <td th:text="${b.spentAmount}"></td>
+                        <td th:text="${b.remainingAmount}"></td>
+                        <td>
+                            <span th:text="${b.status}"
+                                  th:classappend="${b.status == 'Over Budget'} ? 'status-over' : 'status-ok'">
+                            </span>
+                        </td>
+                        <td th:text="${b.startDate}"></td>
+                        <td th:text="${b.endDate}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

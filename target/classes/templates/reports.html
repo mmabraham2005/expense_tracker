@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Reports</title>
+    <link rel="stylesheet" href="/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<div class="app">
+
+    <div class="sidebar">
+        <h2>Menu</h2>
+        <ul>
+            <li><a href="/" class="menu-link">Add Expense</a></li>
+            <li><a href="/expenses/view" class="menu-link">View Expenses</a></li>
+            <li><a href="/expenses/edit" class="menu-link">Edit Expense</a></li>
+            <li><a href="/expenses/delete" class="menu-link">Delete Expense</a></li>
+            <li><a href="/expenses/search" class="menu-link">Search Expense</a></li>
+            <li class="active"><a href="/reports" class="menu-link">Reports</a></li>
+            <li><a href="/budgets" class="menu-link">Budgets</a></li>
+        </ul>
+    </div>
+
+    <div class="content">
+        <h1>Expense Tracker Dashboard</h1>
+        <p class="subtitle">Interactive reports and insights</p>
+
+        <div class="card">
+            <h2>Filters</h2>
+
+            <form th:action="@{/reports}" method="get">
+                <div class="form-grid">
+                    <div>
+                        <label>From Date</label>
+                        <input type="date" name="fromDate" th:value="${fromDate}">
+                    </div>
+
+                    <div>
+                        <label>To Date</label>
+                        <input type="date" name="toDate" th:value="${toDate}">
+                    </div>
+
+                    <div class="full-width">
+                        <label>Category</label>
+                        <select name="categoryId">
+                            <option value="">All Categories</option>
+                            <option th:each="c : ${categories}"
+                                    th:value="${c.categoryId}"
+                                    th:text="${c.categoryName}"
+                                    th:selected="${selectedCategoryId != null and c.categoryId == selectedCategoryId}">
+                            </option>
+                        </select>
+                    </div>
+                </div>
+
+                <button class="btn" type="submit">Apply Filters</button>
+            </form>
+        </div>
+
+        <h2 class="section-title">Summary</h2>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Total Spending</div>
+                <div class="stat-value" th:text="${totalSpending != null ? '$' + totalSpending : '$0.00'}"></div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Transactions</div>
+                <div class="stat-value" th:text="${transactionCount != null ? transactionCount : 0}"></div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Average Expense</div>
+                <div class="stat-value" th:text="${averageExpense != null ? '$' + averageExpense : '$0.00'}"></div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Top Category</div>
+                <div class="stat-value" th:text="${topCategory != null ? topCategory : 'N/A'}"></div>
+            </div>
+        </div>
+
+        <h2 class="section-title">Visualizations</h2>
+
+        <div class="charts-grid">
+            <div class="card">
+                <h2>Spending by Category</h2>
+
+                <div id="categoryDataContainer" style="display:none;">
+                    <div th:each="row : ${categoryTotals}"
+                         class="category-data"
+                         th:attr="data-label=${row.categoryName},data-value=${row.total}">
+                    </div>
+                </div>
+
+                <canvas id="pieChart"></canvas>
+            </div>
+
+            <div class="card">
+                <h2>Monthly Spending</h2>
+
+                <div id="monthlyDataContainer" style="display:none;">
+                    <div th:each="row : ${monthlyTotals}"
+                         class="monthly-data"
+                         th:attr="data-label=${row.monthLabel},data-value=${row.total}">
+                    </div>
+                </div>
+
+                <canvas id="barChart"></canvas>
+            </div>
+        </div>
+
+        <div class="card" style="margin-top: 24px;">
+            <h2>Category Totals</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="row : ${categoryTotals}">
+                        <td th:text="${row.categoryName}"></td>
+                        <td th:text="${row.total}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    const categoryElements = document.querySelectorAll('.category-data');
+    const categoryLabels = [];
+    const categoryValues = [];
+
+    categoryElements.forEach(el => {
+        categoryLabels.push(el.dataset.label);
+        categoryValues.push(parseFloat(el.dataset.value) || 0);
+    });
+
+    const monthlyElements = document.querySelectorAll('.monthly-data');
+    const monthlyLabels = [];
+    const monthlyValues = [];
+
+    monthlyElements.forEach(el => {
+        monthlyLabels.push(el.dataset.label);
+        monthlyValues.push(parseFloat(el.dataset.value) || 0);
+    });
+
+    const pieCanvas = document.getElementById('pieChart');
+    const barCanvas = document.getElementById('barChart');
+
+    if (categoryValues.length > 0) {
+        new Chart(pieCanvas, {
+            type: 'pie',
+            data: {
+                labels: categoryLabels,
+                datasets: [{
+                    data: categoryValues,
+                    backgroundColor: [
+                        '#4c6ef5',
+                        '#ff6b6b',
+                        '#51cf66',
+                        '#fcc419',
+                        '#845ef7',
+                        '#15aabf',
+                        '#f06595'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#fff'
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    if (monthlyValues.length > 0) {
+        new Chart(barCanvas, {
+            type: 'bar',
+            data: {
+                labels: monthlyLabels,
+                datasets: [{
+                    label: 'Spending',
+                    data: monthlyValues,
+                    backgroundColor: '#4c6ef5'
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        ticks: { color: '#fff' },
+                        grid: { color: 'rgba(255,255,255,0.08)' }
+                    },
+                    y: {
+                        ticks: { color: '#fff' },
+                        grid: { color: 'rgba(255,255,255,0.08)' }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#fff'
+                        }
+                    }
+                }
+            }
+        });
+    }
+</script>
+
+</body>
+</html>
