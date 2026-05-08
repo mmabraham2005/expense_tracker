@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Delete Expense — ExpenseTrack</title>
+    <title>User Management — ExpenseTrack</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -24,12 +24,12 @@
                 <li><a href="/" class="menu-link"><i data-lucide="plus-circle"></i>Add Expense</a></li>
                 <li><a href="/expenses/view" class="menu-link"><i data-lucide="receipt"></i>View Expenses</a></li>
                 <li><a href="/expenses/edit" class="menu-link"><i data-lucide="pencil"></i>Edit Expense</a></li>
-                <li class="active"><a href="/expenses/delete" class="menu-link"><i data-lucide="trash-2"></i>Delete Expense</a></li>
+                <li><a href="/expenses/delete" class="menu-link"><i data-lucide="trash-2"></i>Delete Expense</a></li>
                 <div class="nav-divider"></div>
                 <li><a href="/expenses/search" class="menu-link"><i data-lucide="search"></i>Search</a></li>
                 <li><a href="/reports" class="menu-link"><i data-lucide="bar-chart-2"></i>Reports</a></li>
                 <li><a href="/budgets" class="menu-link"><i data-lucide="target"></i>Budgets</a></li>
-                <li th:if="${isAdmin}"><a href="/admin/users" class="menu-link"><i data-lucide="users"></i>User Management</a></li>
+                <li class="active"><a href="/admin/users" class="menu-link"><i data-lucide="users"></i>User Management</a></li>
             </ul>
         </nav>
         <div class="user-bar">
@@ -44,49 +44,35 @@
 
     <div class="content">
         <div class="page-header">
-            <h1>Delete Expense</h1>
-            <p class="subtitle">Permanently remove an expense record</p>
+            <h1>User Management</h1>
+            <p class="subtitle">All registered accounts and their roles</p>
         </div>
 
         <div class="card">
             <div class="card-header">
-                <i data-lucide="trash-2"></i>
-                <h2>All Expenses</h2>
+                <i data-lucide="users"></i>
+                <h2>All Users</h2>
             </div>
 
             <table>
                 <thead>
                     <tr>
-                        <th>#</th>
-                        <th>User</th>
+                        <th>User ID</th>
                         <th>Name</th>
-                        <th>Category</th>
-                        <th>Amount</th>
-                        <th>Date</th>
-                        <th>Payment</th>
-                        <th>Notes</th>
-                        <th>Action</th>
+                        <th>Email</th>
+                        <th>Role</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="e : ${expenses}">
-                        <td style="color: var(--muted); font-variant-numeric: tabular-nums;" th:text="${#numbers.formatInteger(e.expenseId, 9)}"></td>
-                        <td th:text="${e.userName}"></td>
-                        <td style="font-weight: 500;" th:text="${e.expenseName}"></td>
-                        <td><span class="badge badge-cat" th:text="${e.categoryName}"></span></td>
-                        <td><span class="amount-cell" th:text="${'$' + #numbers.formatDecimal(e.amount, 1, 'COMMA', 2, 'POINT')}"></span></td>
-                        <td style="color: var(--muted);" th:text="${e.date}"></td>
-                        <td><span class="badge badge-pay" th:text="${e.paymentMethod}"></span></td>
-                        <td style="color: var(--muted); font-size: 13px;" th:text="${e.notes}"></td>
+                    <tr th:each="u : ${users}">
+                        <td style="color: var(--muted); font-variant-numeric: tabular-nums;"
+                            th:text="${#numbers.formatInteger(u.userId, 9)}"></td>
+                        <td style="font-weight: 500;" th:text="${u.name}"></td>
+                        <td style="color: var(--muted);" th:text="${u.email}"></td>
                         <td>
-                            <form th:action="@{/expenses/delete}" method="post">
-                                <input type="hidden" name="expenseId" th:value="${e.expenseId}">
-                                <button class="btn-danger" type="submit"
-                                        onclick="return confirm('Delete this expense? This cannot be undone.')">
-                                    <i data-lucide="trash-2"></i>
-                                    Delete
-                                </button>
-                            </form>
+                            <span th:if="${u.role == 'ADMIN'}" class="role-badge">Admin</span>
+                            <span th:if="${u.role == 'USER'}"
+                                  style="font-size:12px; color: var(--muted);">User</span>
                         </td>
                     </tr>
                 </tbody>

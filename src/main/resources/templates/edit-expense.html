@@ -1,38 +1,63 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Edit Expense</title>
+    <title>Edit Expense — ExpenseTrack</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/style.css">
 </head>
 <body>
 
 <div class="app">
 
-    <div class="sidebar">
-        <h2>Menu</h2>
-        <ul>
-            <li><a href="/" class="menu-link">Add Expense</a></li>
-            <li><a href="/expenses/view" class="menu-link">View Expenses</a></li>
-            <li class="active"><a href="/expenses/edit" class="menu-link">Edit Expense</a></li>
-            <li><a href="/expenses/delete" class="menu-link">Delete Expense</a></li>
-            <li><a href="/expenses/search" class="menu-link">Search Expense</a></li>
-            <li><a href="/reports" class="menu-link">Reports</a></li>
-            <li><a href="/budgets" class="menu-link">Budgets</a></li>
-        </ul>
-    </div>
+    <aside class="sidebar">
+        <a href="/" class="sidebar-brand">
+            <div class="brand-icon"><i data-lucide="wallet"></i></div>
+            <div class="brand-text">
+                <h1>ExpenseTrack</h1>
+                <span>Personal Finance</span>
+            </div>
+        </a>
+        <nav class="sidebar-nav">
+            <ul>
+                <li><a href="/" class="menu-link"><i data-lucide="plus-circle"></i>Add Expense</a></li>
+                <li><a href="/expenses/view" class="menu-link"><i data-lucide="receipt"></i>View Expenses</a></li>
+                <li class="active"><a href="/expenses/edit" class="menu-link"><i data-lucide="pencil"></i>Edit Expense</a></li>
+                <li><a href="/expenses/delete" class="menu-link"><i data-lucide="trash-2"></i>Delete Expense</a></li>
+                <div class="nav-divider"></div>
+                <li><a href="/expenses/search" class="menu-link"><i data-lucide="search"></i>Search</a></li>
+                <li><a href="/reports" class="menu-link"><i data-lucide="bar-chart-2"></i>Reports</a></li>
+                <li><a href="/budgets" class="menu-link"><i data-lucide="target"></i>Budgets</a></li>
+                <li th:if="${isAdmin}"><a href="/admin/users" class="menu-link"><i data-lucide="users"></i>User Management</a></li>
+            </ul>
+        </nav>
+        <div class="user-bar">
+            <div class="user-avatar" th:text="${#strings.toUpperCase(#strings.substring(sessionUserName, 0, 1))}">U</div>
+            <div class="user-info">
+                <div class="user-name" th:text="${sessionUserName}">User</div>
+                <span th:if="${isAdmin}" class="role-badge">Admin</span>
+            </div>
+            <a href="/logout" class="logout-link" title="Sign out"><i data-lucide="log-out"></i></a>
+        </div>
+    </aside>
 
     <div class="content">
-        <h1>Expense Tracker Dashboard</h1>
-        <p class="subtitle">Choose an expense to edit</p>
+        <div class="page-header">
+            <h1>Edit Expense</h1>
+            <p class="subtitle">Select an expense below to load it for editing</p>
+        </div>
 
         <div class="card">
-            <h2>Select Expense</h2>
+            <div class="card-header">
+                <i data-lucide="list"></i>
+                <h2>Select Expense</h2>
+            </div>
 
             <table>
                 <thead>
                     <tr>
-                        <th>ID</th>
+                        <th>#</th>
                         <th>User</th>
                         <th>Name</th>
                         <th>Category</th>
@@ -44,39 +69,35 @@
                 </thead>
                 <tbody>
                     <tr th:each="e : ${expenses}">
-                        <td th:text="${e.expenseId}"></td>
+                        <td style="color: var(--muted); font-variant-numeric: tabular-nums;" th:text="${#numbers.formatInteger(e.expenseId, 9)}"></td>
                         <td th:text="${e.userName}"></td>
-                        <td th:text="${e.expenseName}"></td>
-                        <td th:text="${e.categoryName}"></td>
-                        <td th:text="${e.amount}"></td>
-                        <td th:text="${e.date}"></td>
-                        <td th:text="${e.paymentMethod}"></td>
+                        <td style="font-weight: 500;" th:text="${e.expenseName}"></td>
+                        <td><span class="badge badge-cat" th:text="${e.categoryName}"></span></td>
+                        <td><span class="amount-cell" th:text="${'$' + #numbers.formatDecimal(e.amount, 1, 'COMMA', 2, 'POINT')}"></span></td>
+                        <td style="color: var(--muted);" th:text="${e.date}"></td>
+                        <td><span class="badge badge-pay" th:text="${e.paymentMethod}"></span></td>
                         <td>
-                            <a class="btn-edit" th:href="@{/expenses/edit(id=${e.expenseId})}">Load</a>
+                            <a class="btn-edit" th:href="@{/expenses/edit(id=${e.expenseId})}">
+                                <i data-lucide="pencil"></i>
+                                Load
+                            </a>
                         </td>
                     </tr>
                 </tbody>
             </table>
         </div>
 
-        <div class="card" th:if="${expense != null}" style="margin-top: 24px;">
-            <h2>Edit Expense</h2>
+        <div class="card" th:if="${expense != null}">
+            <div class="card-header">
+                <i data-lucide="pencil"></i>
+                <h2>Edit Expense #<span th:text="${#numbers.formatInteger(expense.expenseId, 9)}"></span></h2>
+            </div>
 
             <form th:action="@{/expenses/update}" method="post">
                 <input type="hidden" name="expenseId" th:value="${expense.expenseId}">
+                <input type="hidden" name="userId" th:value="${expense.userId}">
 
                 <div class="form-grid">
-
-                    <div>
-                        <label>User</label>
-                        <select name="userId" required>
-                            <option th:each="u : ${users}"
-                                    th:value="${u.userId}"
-                                    th:text="${u.name + ' (' + u.email + ')'}"
-                                    th:selected="${u.userId == expense.userId}">
-                            </option>
-                        </select>
-                    </div>
 
                     <div>
                         <label>Date</label>
@@ -100,36 +121,41 @@
                     </div>
 
                     <div>
-                        <label>Amount</label>
+                        <label>Amount ($)</label>
                         <input type="number" step="0.01" min="0" name="amount" th:value="${expense.amount}" required>
                     </div>
 
                     <div>
                         <label>Payment Method</label>
                         <select name="paymentMethod" required>
-                            <option value="Cash" th:selected="${expense.paymentMethod == 'Cash'}">Cash</option>
+                            <option value="Cash"        th:selected="${expense.paymentMethod == 'Cash'}">Cash</option>
                             <option value="Credit Card" th:selected="${expense.paymentMethod == 'Credit Card'}">Credit Card</option>
-                            <option value="Debit Card" th:selected="${expense.paymentMethod == 'Debit Card'}">Debit Card</option>
-                            <option value="Venmo" th:selected="${expense.paymentMethod == 'Venmo'}">Venmo</option>
-                            <option value="Zelle" th:selected="${expense.paymentMethod == 'Zelle'}">Zelle</option>
-                            <option value="Apple Pay" th:selected="${expense.paymentMethod == 'Apple Pay'}">Apple Pay</option>
-                            <option value="Other" th:selected="${expense.paymentMethod == 'Other'}">Other</option>
+                            <option value="Debit Card"  th:selected="${expense.paymentMethod == 'Debit Card'}">Debit Card</option>
+                            <option value="Venmo"       th:selected="${expense.paymentMethod == 'Venmo'}">Venmo</option>
+                            <option value="Zelle"       th:selected="${expense.paymentMethod == 'Zelle'}">Zelle</option>
+                            <option value="Apple Pay"   th:selected="${expense.paymentMethod == 'Apple Pay'}">Apple Pay</option>
+                            <option value="Other"       th:selected="${expense.paymentMethod == 'Other'}">Other</option>
                         </select>
                     </div>
 
                     <div class="full-width">
-                        <label>Notes</label>
+                        <label>Notes <span style="color: var(--muted); font-weight: 400;">(optional)</span></label>
                         <textarea name="notes" th:text="${expense.notes}"></textarea>
                     </div>
 
                 </div>
 
-                <button class="btn" type="submit">Update Expense</button>
+                <button class="btn" type="submit">
+                    <i data-lucide="save"></i>
+                    Save Changes
+                </button>
             </form>
         </div>
     </div>
 
 </div>
 
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script>lucide.createIcons();</script>
 </body>
 </html>

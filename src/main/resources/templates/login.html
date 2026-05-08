@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Sign In — ExpenseTrack</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<div class="login-page">
+    <div class="login-box">
+
+        <div class="login-brand">
+            <div class="brand-icon-lg">
+                <i data-lucide="wallet"></i>
+            </div>
+            <h1>ExpenseTrack</h1>
+            <p>Sign in to your account</p>
+        </div>
+
+        <div class="login-card">
+            <div th:if="${error}" class="error-msg">
+                <i data-lucide="alert-circle"></i>
+                <span th:text="${error}"></span>
+            </div>
+
+            <form th:action="@{/login}" method="post">
+                <div class="login-field">
+                    <label>Email address</label>
+                    <input type="email" name="email" placeholder="you@example.com" required autofocus>
+                </div>
+                <div class="login-field">
+                    <label>Password</label>
+                    <input type="password" name="password" placeholder="••••••••" required>
+                </div>
+                <button class="login-btn" type="submit">
+                    <i data-lucide="log-in"></i>
+                    Sign in
+                </button>
+            </form>
+        </div>
+
+        <p class="login-footer">
+            Don't have an account?
+            <a href="/signup" style="color:var(--accent); text-decoration:none;">Sign up</a>
+        </p>
+    </div>
+</div>
+
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script>lucide.createIcons();</script>
+</body>
+</html>

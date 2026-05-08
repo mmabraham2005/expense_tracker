@@ -1,48 +1,66 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Expense Tracker</title>
+    <title>Add Expense — ExpenseTrack</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/style.css">
 </head>
 <body>
 
 <div class="app">
 
-    <div class="sidebar">
-        <h2>Menu</h2>
-        <ul>
-            <li class="active"><a href="/" class="menu-link">Add Expense</a></li>
-            <li><a href="/expenses/view" class="menu-link">View Expenses</a></li>
-            <li><a href="/expenses/edit" class="menu-link">Edit Expense</a></li>
-            <li><a href="/expenses/delete" class="menu-link">Delete Expense</a></li>
-            <li><a href="/expenses/search" class="menu-link">Search Expense</a></li>
-            <li><a href="/reports" class="menu-link">Reports</a></li>
-            <li><a href="/budgets" class="menu-link">Budgets</a></li>
-        </ul>
-    </div>
+    <aside class="sidebar">
+        <a href="/" class="sidebar-brand">
+            <div class="brand-icon"><i data-lucide="wallet"></i></div>
+            <div class="brand-text">
+                <h1>ExpenseTrack</h1>
+                <span>Personal Finance</span>
+            </div>
+        </a>
+        <nav class="sidebar-nav">
+            <ul>
+                <li class="active"><a href="/" class="menu-link"><i data-lucide="plus-circle"></i>Add Expense</a></li>
+                <li><a href="/expenses/view" class="menu-link"><i data-lucide="receipt"></i>View Expenses</a></li>
+                <li><a href="/expenses/edit" class="menu-link"><i data-lucide="pencil"></i>Edit Expense</a></li>
+                <li><a href="/expenses/delete" class="menu-link"><i data-lucide="trash-2"></i>Delete Expense</a></li>
+                <div class="nav-divider"></div>
+                <li><a href="/expenses/search" class="menu-link"><i data-lucide="search"></i>Search</a></li>
+                <li><a href="/reports" class="menu-link"><i data-lucide="bar-chart-2"></i>Reports</a></li>
+                <li><a href="/budgets" class="menu-link"><i data-lucide="target"></i>Budgets</a></li>
+                <li th:if="${isAdmin}"><a href="/admin/users" class="menu-link"><i data-lucide="users"></i>User Management</a></li>
+            </ul>
+        </nav>
+        <div class="user-bar">
+            <div class="user-avatar" th:text="${#strings.toUpperCase(#strings.substring(sessionUserName, 0, 1))}">U</div>
+            <div class="user-info">
+                <div class="user-name" th:text="${sessionUserName}">User</div>
+                <span th:if="${isAdmin}" class="role-badge">Admin</span>
+            </div>
+            <a href="/logout" class="logout-link" title="Sign out"><i data-lucide="log-out"></i></a>
+        </div>
+    </aside>
 
     <div class="content">
-        <h1>Expense Tracker Dashboard</h1>
-        <p class="subtitle">Track, edit, analyze, and visualize your expenses</p>
+        <div class="page-header">
+            <h1>Add Expense</h1>
+            <p class="subtitle">Record a new expense to your account</p>
+        </div>
 
-        <div class="card">
-            <h2>Add Expense</h2>
+        <div class="card" style="max-width: 680px;">
+            <div class="card-header">
+                <i data-lucide="plus-circle"></i>
+                <h2>New Expense</h2>
+            </div>
 
-            <p th:if="${successMessage}" class="success-msg" th:text="${successMessage}"></p>
+            <div th:if="${successMessage}" class="success-msg">
+                <i data-lucide="check-circle"></i>
+                <span th:text="${successMessage}"></span>
+            </div>
 
             <form th:action="@{/expenses/add}" method="post">
                 <div class="form-grid">
-
-                    <div>
-                        <label>User</label>
-                        <select name="userId" required>
-                            <option value="">Select user</option>
-                            <option th:each="u : ${users}"
-                                    th:value="${u.userId}"
-                                    th:text="${u.name}">
-                            </option>
-                        </select>
-                    </div>
 
                     <div>
                         <label>Date</label>
@@ -50,8 +68,8 @@
                     </div>
 
                     <div>
-                        <label>Name</label>
-                        <input type="text" name="expenseName" required>
+                        <label>Expense Name</label>
+                        <input type="text" name="expenseName" placeholder="e.g. Grocery run" required>
                     </div>
 
                     <div>
@@ -66,14 +84,14 @@
                     </div>
 
                     <div>
-                        <label>Amount</label>
-                        <input type="number" step="0.01" min="0" name="amount" required>
+                        <label>Amount ($)</label>
+                        <input type="number" step="0.01" min="0" name="amount" placeholder="0.00" required>
                     </div>
 
                     <div>
-                        <label>Payment</label>
+                        <label>Payment Method</label>
                         <select name="paymentMethod" required>
-                            <option value="">Select payment</option>
+                            <option value="">Select method</option>
                             <option>Cash</option>
                             <option>Credit Card</option>
                             <option>Debit Card</option>
@@ -85,18 +103,23 @@
                     </div>
 
                     <div class="full-width">
-                        <label>Notes</label>
-                        <textarea name="notes"></textarea>
+                        <label>Notes <span style="color: var(--muted); font-weight: 400;">(optional)</span></label>
+                        <textarea name="notes" placeholder="Any additional details..."></textarea>
                     </div>
 
                 </div>
 
-                <button class="btn" type="submit">Add</button>
+                <button class="btn" type="submit">
+                    <i data-lucide="plus"></i>
+                    Add Expense
+                </button>
             </form>
         </div>
     </div>
 
 </div>
 
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script>lucide.createIcons();</script>
 </body>
 </html>

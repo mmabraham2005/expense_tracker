@@ -1,33 +1,58 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Reports</title>
+    <title>Reports — ExpenseTrack</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/style.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
 <div class="app">
 
-    <div class="sidebar">
-        <h2>Menu</h2>
-        <ul>
-            <li><a href="/" class="menu-link">Add Expense</a></li>
-            <li><a href="/expenses/view" class="menu-link">View Expenses</a></li>
-            <li><a href="/expenses/edit" class="menu-link">Edit Expense</a></li>
-            <li><a href="/expenses/delete" class="menu-link">Delete Expense</a></li>
-            <li><a href="/expenses/search" class="menu-link">Search Expense</a></li>
-            <li class="active"><a href="/reports" class="menu-link">Reports</a></li>
-            <li><a href="/budgets" class="menu-link">Budgets</a></li>
-        </ul>
-    </div>
+    <aside class="sidebar">
+        <a href="/" class="sidebar-brand">
+            <div class="brand-icon"><i data-lucide="wallet"></i></div>
+            <div class="brand-text">
+                <h1>ExpenseTrack</h1>
+                <span>Personal Finance</span>
+            </div>
+        </a>
+        <nav class="sidebar-nav">
+            <ul>
+                <li><a href="/" class="menu-link"><i data-lucide="plus-circle"></i>Add Expense</a></li>
+                <li><a href="/expenses/view" class="menu-link"><i data-lucide="receipt"></i>View Expenses</a></li>
+                <li><a href="/expenses/edit" class="menu-link"><i data-lucide="pencil"></i>Edit Expense</a></li>
+                <li><a href="/expenses/delete" class="menu-link"><i data-lucide="trash-2"></i>Delete Expense</a></li>
+                <div class="nav-divider"></div>
+                <li><a href="/expenses/search" class="menu-link"><i data-lucide="search"></i>Search</a></li>
+                <li class="active"><a href="/reports" class="menu-link"><i data-lucide="bar-chart-2"></i>Reports</a></li>
+                <li><a href="/budgets" class="menu-link"><i data-lucide="target"></i>Budgets</a></li>
+                <li th:if="${isAdmin}"><a href="/admin/users" class="menu-link"><i data-lucide="users"></i>User Management</a></li>
+            </ul>
+        </nav>
+        <div class="user-bar">
+            <div class="user-avatar" th:text="${#strings.toUpperCase(#strings.substring(sessionUserName, 0, 1))}">U</div>
+            <div class="user-info">
+                <div class="user-name" th:text="${sessionUserName}">User</div>
+                <span th:if="${isAdmin}" class="role-badge">Admin</span>
+            </div>
+            <a href="/logout" class="logout-link" title="Sign out"><i data-lucide="log-out"></i></a>
+        </div>
+    </aside>
 
     <div class="content">
-        <h1>Expense Tracker Dashboard</h1>
-        <p class="subtitle">Interactive reports and insights</p>
+        <div class="page-header">
+            <h1>Reports</h1>
+            <p class="subtitle">Insights and spending analytics</p>
+        </div>
 
         <div class="card">
-            <h2>Filters</h2>
+            <div class="card-header">
+                <i data-lucide="filter"></i>
+                <h2>Filters</h2>
+            </div>
 
             <form th:action="@{/reports}" method="get">
                 <div class="form-grid">
@@ -35,12 +60,10 @@
                         <label>From Date</label>
                         <input type="date" name="fromDate" th:value="${fromDate}">
                     </div>
-
                     <div>
                         <label>To Date</label>
                         <input type="date" name="toDate" th:value="${toDate}">
                     </div>
-
                     <div class="full-width">
                         <label>Category</label>
                         <select name="categoryId">
@@ -53,166 +76,147 @@
                         </select>
                     </div>
                 </div>
-
-                <button class="btn" type="submit">Apply Filters</button>
+                <button class="btn" type="submit">
+                    <i data-lucide="bar-chart-2"></i>
+                    Apply Filters
+                </button>
             </form>
         </div>
 
-        <h2 class="section-title">Summary</h2>
+        <p class="section-title">Overview</p>
 
         <div class="stats-grid">
             <div class="stat-card">
+                <div class="stat-icon"><i data-lucide="dollar-sign"></i></div>
                 <div class="stat-label">Total Spending</div>
-                <div class="stat-value" th:text="${totalSpending != null ? '$' + totalSpending : '$0.00'}"></div>
+                <div class="stat-value" th:text="${totalSpending != null ? '$' + #numbers.formatDecimal(totalSpending, 1, 'COMMA', 2, 'POINT') : '$0.00'}"></div>
             </div>
-
             <div class="stat-card">
+                <div class="stat-icon"><i data-lucide="credit-card"></i></div>
                 <div class="stat-label">Transactions</div>
                 <div class="stat-value" th:text="${transactionCount != null ? transactionCount : 0}"></div>
             </div>
-
             <div class="stat-card">
+                <div class="stat-icon"><i data-lucide="trending-up"></i></div>
                 <div class="stat-label">Average Expense</div>
-                <div class="stat-value" th:text="${averageExpense != null ? '$' + averageExpense : '$0.00'}"></div>
+                <div class="stat-value" th:text="${averageExpense != null ? '$' + #numbers.formatDecimal(averageExpense, 1, 'COMMA', 2, 'POINT') : '$0.00'}"></div>
             </div>
-
             <div class="stat-card">
+                <div class="stat-icon"><i data-lucide="tag"></i></div>
                 <div class="stat-label">Top Category</div>
-                <div class="stat-value" th:text="${topCategory != null ? topCategory : 'N/A'}"></div>
+                <div class="stat-value" style="font-size: 18px;" th:text="${topCategory != null ? topCategory : 'N/A'}"></div>
             </div>
         </div>
 
-        <h2 class="section-title">Visualizations</h2>
+        <p class="section-title">Spending by Category</p>
 
-        <div class="charts-grid">
-            <div class="card">
-                <h2>Spending by Category</h2>
-
-                <div id="categoryDataContainer" style="display:none;">
-                    <div th:each="row : ${categoryTotals}"
-                         class="category-data"
-                         th:attr="data-label=${row.categoryName},data-value=${row.total}">
-                    </div>
-                </div>
-
-                <canvas id="pieChart"></canvas>
+        <div class="card">
+            <div class="card-header">
+                <i data-lucide="bar-chart-2"></i>
+                <h2>Category Breakdown</h2>
             </div>
 
-            <div class="card">
-                <h2>Monthly Spending</h2>
-
-                <div id="monthlyDataContainer" style="display:none;">
-                    <div th:each="row : ${monthlyTotals}"
-                         class="monthly-data"
-                         th:attr="data-label=${row.monthLabel},data-value=${row.total}">
-                    </div>
+            <div id="categoryDataContainer" style="display:none;">
+                <div th:each="row : ${categoryTotals}"
+                     class="category-data"
+                     th:attr="data-label=${row.categoryName},data-value=${row.total}">
                 </div>
+            </div>
 
+            <div style="position:relative; height:360px;">
                 <canvas id="barChart"></canvas>
             </div>
-        </div>
-
-        <div class="card" style="margin-top: 24px;">
-            <h2>Category Totals</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Category</th>
-                        <th>Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="row : ${categoryTotals}">
-                        <td th:text="${row.categoryName}"></td>
-                        <td th:text="${row.total}"></td>
-                    </tr>
-                </tbody>
-            </table>
+            <p id="chartEmpty" style="display:none;text-align:center;color:var(--muted);padding:60px 0;font-size:15px;">No spending data for the selected period</p>
         </div>
     </div>
 
 </div>
 
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script>lucide.createIcons();</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
-    const categoryElements = document.querySelectorAll('.category-data');
-    const categoryLabels = [];
-    const categoryValues = [];
+    const PALETTE = ['#6366f1','#8b5cf6','#ec4899','#f59e0b','#10b981','#06b6d4','#f97316',
+                     '#e11d48','#0ea5e9','#84cc16','#a855f7','#14b8a6','#f43f5e','#fb923c','#facc15'];
+    const gridColor = 'rgba(255,255,255,0.06)';
+    const tickColor = '#94a3b8';
 
-    categoryElements.forEach(el => {
-        categoryLabels.push(el.dataset.label);
-        categoryValues.push(parseFloat(el.dataset.value) || 0);
+    // When a specific category is selected, show it even at $0 so the user sees the result.
+    // When showing all categories, skip $0 bars to avoid an unreadable chart.
+    const singleCategory = /*[[${selectedCategoryId != null}]]*/ false;
+    const labels = [], values = [], colors = [];
+    document.querySelectorAll('.category-data').forEach((el, i) => {
+        const v = parseFloat(el.dataset.value) || 0;
+        if (v > 0 || singleCategory) {
+            labels.push(el.dataset.label);
+            values.push(v);
+            colors.push(PALETTE[i % PALETTE.length]);
+        }
     });
 
-    const monthlyElements = document.querySelectorAll('.monthly-data');
-    const monthlyLabels = [];
-    const monthlyValues = [];
-
-    monthlyElements.forEach(el => {
-        monthlyLabels.push(el.dataset.label);
-        monthlyValues.push(parseFloat(el.dataset.value) || 0);
-    });
-
-    const pieCanvas = document.getElementById('pieChart');
-    const barCanvas = document.getElementById('barChart');
-
-    if (categoryValues.length > 0) {
-        new Chart(pieCanvas, {
-            type: 'pie',
-            data: {
-                labels: categoryLabels,
-                datasets: [{
-                    data: categoryValues,
-                    backgroundColor: [
-                        '#4c6ef5',
-                        '#ff6b6b',
-                        '#51cf66',
-                        '#fcc419',
-                        '#845ef7',
-                        '#15aabf',
-                        '#f06595'
-                    ]
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        labels: {
-                            color: '#fff'
-                        }
-                    }
-                }
-            }
-        });
-    }
-
-    if (monthlyValues.length > 0) {
-        new Chart(barCanvas, {
+    if (values.length === 0) {
+        document.getElementById('barChart').style.display = 'none';
+        document.getElementById('chartEmpty').style.display = 'block';
+    } else {
+        new Chart(document.getElementById('barChart'), {
             type: 'bar',
             data: {
-                labels: monthlyLabels,
+                labels: labels,
                 datasets: [{
-                    label: 'Spending',
-                    data: monthlyValues,
-                    backgroundColor: '#4c6ef5'
+                    label: 'Total Spent ($)',
+                    data: values,
+                    backgroundColor: colors.map(c => c + 'cc'),
+                    borderColor: colors,
+                    borderWidth: 2,
+                    borderRadius: 8,
+                    borderSkipped: false
                 }]
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
+                onClick(evt, elements) {
+                    if (elements.length > 0) {
+                        const idx = elements[0].index;
+                        this.data.datasets[0].backgroundColor = colors.map((c, i) =>
+                            i === idx ? c : c + '44'
+                        );
+                        this.data.datasets[0].borderColor = colors.map((c, i) =>
+                            i === idx ? c : c + '44'
+                        );
+                        this.update();
+                    } else {
+                        this.data.datasets[0].backgroundColor = colors.map(c => c + 'cc');
+                        this.data.datasets[0].borderColor = colors;
+                        this.update();
+                    }
+                },
                 scales: {
                     x: {
-                        ticks: { color: '#fff' },
-                        grid: { color: 'rgba(255,255,255,0.08)' }
+                        ticks: { color: tickColor, font: { size: 13 } },
+                        grid: { color: gridColor }
                     },
                     y: {
-                        ticks: { color: '#fff' },
-                        grid: { color: 'rgba(255,255,255,0.08)' }
+                        ticks: {
+                            color: tickColor,
+                            font: { size: 13 },
+                            callback: v => '$' + v.toLocaleString()
+                        },
+                        grid: { color: gridColor }
                     }
                 },
                 plugins: {
-                    legend: {
-                        labels: {
-                            color: '#fff'
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#1e293b',
+                        borderColor: '#334155',
+                        borderWidth: 1,
+                        titleColor: '#f1f5f9',
+                        bodyColor: '#94a3b8',
+                        padding: 12,
+                        callbacks: {
+                            label: ctx => '  $' + ctx.parsed.y.toLocaleString('en-US', { minimumFractionDigits: 2 })
                         }
                     }
                 }
