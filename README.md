@@ -100,7 +100,7 @@ mysql --version   # must show 8.0 or higher
 ### Step 2 — Clone or download the project
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/mmabraham2005/expense_tracker/tree/main
 cd expense_tracker
 ```
 
